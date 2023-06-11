@@ -1,4 +1,4 @@
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { RouterView } from 'vue-router'
 import {
   QLayout,
@@ -13,12 +13,12 @@ import {
 
 export const MainLayout = defineComponent({
 	setup() {
-		const btnLeftDrawer = ref(false)
+		// const btnLeftDrawer = ref(false)
 
 		return () => (
       <QLayout view="hHh lpR fff">
         <QHeader >
-          <QToolbar class='bg-white'>
+          <QToolbar class={'bg-white'}>
             {/* Allen Web */}
             <QToolbarTitle shrink class='text-primary'>
               Allen Web

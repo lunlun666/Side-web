@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.tsx'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate  from 'pinia-plugin-persistedstate'
 
 // Import vue-router
 import router from './router/index.ts'
@@ -17,6 +18,7 @@ import 'quasar/src/css/index.sass'
 
 const myApp = createApp(App)
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 myApp.use(Quasar, {
     plugins: {}
