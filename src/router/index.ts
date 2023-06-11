@@ -1,15 +1,20 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import MainLayout from '../components/MainLayout'
+import { createRouter, createWebHistory, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import {MainLayout} from '../page/MainLayout'
+import { Ubike } from '../page/Ubike'
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    component: MainLayout
+    component: MainLayout,
+    children:[
+      {path: "/ubkie",name: "bike", component: Ubike}
+    ],
   },
+  // {path: '/ubike', components: Ubike}
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 

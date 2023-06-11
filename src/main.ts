@@ -21,9 +21,9 @@ const pinia = createPinia()
 myApp.use(Quasar, {
     plugins: {}
 })
-
-myApp.use(pinia)
-
-myApp.use(router)
+.use(router)
+.use(pinia)
+// myApp.use(router)
+// myApp.use(pinia)
 
 myApp.mount('#app')
