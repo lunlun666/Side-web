@@ -7,7 +7,7 @@ import { useUbikeStore } from '../stores/ubike'
 export const Ubike = defineComponent({
 	setup() {
 		const totalDatas = reactive([])
-		const favoriteDatas = ref()
+		const favoriteDatas = ref([])
 		const loading = ref(true)
 		const filterText = ref('')
 		const ubikeStore = useUbikeStore()
