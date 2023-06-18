@@ -1,4 +1,4 @@
-import { defineComponent, onBeforeMount, reactive, ref } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, computed } from 'vue'
 import Axios from 'axios'
 import { QTable, QInput, QIcon, QBtn } from 'quasar'
 import { useUbikeStore } from '../stores/ubike'
@@ -6,11 +6,12 @@ import { useUbikeStore } from '../stores/ubike'
 
 export const Ubike = defineComponent({
 	setup() {
-		const ubikeData = reactive([])
+		const totalDatas = reactive([])
+		const favoriteDatas = ref()
 		const loading = ref(true)
 		const filterText = ref('')
 		const ubikeStore = useUbikeStore()
-		const tableColumns = [
+		const totalColumns = [
 			{
 				name: 'location', label: '站點', field: row => row.sna.split('YouBike2.0_')[1],
 			},
@@ -27,7 +28,7 @@ export const Ubike = defineComponent({
 				name: 'add'
 			}
 		]
-		const table2Columns = [
+		const favoriteColumns = [
 			{
 				name: 'location', label: '站點', field: row => row.sna.split('YouBike2.0_')[1],
 			},
@@ -45,28 +46,39 @@ export const Ubike = defineComponent({
 			}
 		]
 
-		// const a = ['aaa', 'bbb', 'ccc']
+		const addFavoriteData = () => {
+			const a = ubikeStore.state.favorites.reduce((accumulator: any, fovorite: String) => {
+				accumulator.push(totalDatas.find((data: Record<string, unknown>) => data.sna === fovorite))
+				return accumulator
+			}, [])
+			console.log(a)
+
+			return a					
+		}
 
 		onBeforeMount(() => {
 			Axios.get(
 				'https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json'
 				).then((res) => {
-					console.log('res =>', res.data)
-					ubikeData.push(...res.data)
-					console.log('ubikeData =>', ubikeData)
+					// console.log('res =>', res.data)
+					totalDatas.push(...res.data)
+					console.log('ubikeData =>', totalDatas)
+					if(ubikeStore.state.favorites.length > 0) {
+						favoriteDatas.value = addFavoriteData()
+					}
 					loading.value = false
 				})
 		})
 		return () => (
 			<div class={'full-width'}>
-				{/* <div>	sno(站點代號)、sna(中文場站名稱)、tot(場站總停車格)、sbi(可借車位數)、sarea(中文場站區域)、mday(資料更新時間)、lat(緯度)、lng(經度)、ar(中文地址)、sareaen(英文場站區域)、snaen(英文場站名稱)、aren(英文地址)、bemp(可還空位數)、act(場站是否暫停營運)</div> */}
+				<div>	sno(站點代號)、sna(中文場站名稱)、tot(場站總停車格)、sbi(可借車位數)、sarea(中文場站區域)、mday(資料更新時間)、lat(緯度)、lng(經度)、ar(中文地址)、sareaen(英文場站區域)、snaen(英文場站名稱)、aren(英文地址)、bemp(可還空位數)、act(場站是否暫停營運)</div>
 				{/* {ubikeData[0]?.ar} */}
 				<div class='q-mb-md'>
 					<QTable
 						title={'UBike 2.0 所有站點'}
 						loading={loading.value}
-						columns={tableColumns}
-						rows={ubikeData}
+						columns={totalColumns}
+						rows={totalDatas}
 						row-key={'name'}
 						filter={filterText.value}
 						v-slots={{
@@ -89,8 +101,9 @@ export const Ubike = defineComponent({
 									onClick={
 										() => {
 											console.log('props =>', props)
-											ubikeStore.state.favorite.push(props.row)
-											console.log('ubikeStore.state.favorite =>', ubikeStore.state.favorite)
+											ubikeStore.state.favorites.push(props.row.sna)
+											favoriteDatas.value.push(props.row)
+											console.log('ubikeStore.state.favorites =>', ubikeStore.state.favorites)
 										}
 									}
 								>
@@ -101,29 +114,32 @@ export const Ubike = defineComponent({
 					</QTable>
 				</div>
 				<div>
-					<QTable
-						title={'Favorite'}
-						loading={loading.value}
-						columns={table2Columns}
-						rows={ubikeStore.state.favorite}
-						row-key={'name'}
-						v-slots={{
-							'body-cell-remove': (props) => (
-								<QBtn
-									class='q-mr-md'
-									label='delet to favorite'
-									onClick={
-										() => {
-											console.log('props =>', props.rowIndex)
-											ubikeStore.state.favorite.splice(props.rowIndex, 1)
+					{!loading.value && (
+							<QTable
+							title={'Favorite'}
+							loading={loading.value}
+							columns={favoriteColumns}
+							rows={favoriteDatas.value}
+							row-key={'name'}
+							v-slots={{
+								'body-cell-remove': (props) => (
+									<QBtn
+										class='q-mr-md'
+										label='delet to favorite'
+										onClick={
+											() => {
+												console.log('props =>', props.rowIndex)
+												favoriteDatas.value.splice(props.rowIndex, 1)
+												ubikeStore.state.favorites.splice(props.rowIndex, 1)
+											}
 										}
-									}
-								>
-								</QBtn>
-							)
-						}}
-					>
-					</QTable>
+									>
+									</QBtn>
+								)
+							}}
+						>
+						</QTable>
+					)}
 				</div>
 			</div>
 		)

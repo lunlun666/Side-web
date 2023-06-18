@@ -5,7 +5,7 @@ export const useUbikeStore = defineStore(
   'ubkie', () => {
 
     const state = reactive({
-      favorite: []
+      favorites: []
     })
 
     return {
