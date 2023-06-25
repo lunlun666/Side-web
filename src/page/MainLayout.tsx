@@ -18,9 +18,9 @@ export const MainLayout = defineComponent({
 		return () => (
       <QLayout view="hHh lpR fff">
         <QHeader >
-          <QToolbar class={'bg-white'}>
+          <QToolbar class='bg-white'>
             {/* Allen Web */}
-            <QToolbarTitle shrink class={'text-primary'}>
+            <QToolbarTitle shrink class='text-primary'>
               Allen Web
             </QToolbarTitle>
             <QSpace />
