@@ -1,9 +1,10 @@
-import { defineComponent, onBeforeMount, reactive, ref, computed } from 'vue'
+import { defineComponent, onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
 import Axios from 'axios'
-import { QTable, QInput, QIcon, QBtn } from 'quasar'
+import { QTable, QInput, QIcon, QBtn, QTd } from 'quasar'
 import { useUbikeStore } from '../stores/ubike'
+import { totalColumns, favoriteColumns } from '../data/tableColumns'
 import { differenceWith, isEqual } from 'lodash'
-
+import { Loader } from '@googlemaps/js-api-loader'
 
 export const Ubike = defineComponent({
 	setup() {
@@ -12,41 +13,7 @@ export const Ubike = defineComponent({
 		const favoriteDatas = ref([])
 		const loading = ref(true)
 		const filterText = ref('')
-		const ubikeStore = useUbikeStore()
-		const totalColumns = [
-			{
-				name: 'location', label: '站點', field: row => row.sna.split('YouBike2.0_')[1],
-			},
-			{
-				name: 'total', label: '總車輛', field: row => row.tot,
-			},
-			{
-				name: 'borrowNumber', label: '可借數量', field: row => row.sbi,
-			},
-			{
-				name: 'parkNumber', label: '可停數量', field: row => row.tot - row.sbi,
-			},
-			{
-				name: 'add'
-			}
-		]
-		const favoriteColumns = [
-			{
-				name: 'location', label: '站點', field: row => row.sna.split('YouBike2.0_')[1],
-			},
-			{
-				name: 'total', label: '總車輛', field: row => row.tot,
-			},
-			{
-				name: 'borrowNumber', label: '可借數量', field: row => row.sbi,
-			},
-			{
-				name: 'parkNumber', label: '可停數量', field: row => row.tot - row.sbi,
-			},
-			{
-				name: 'remove'
-			}
-		]
+		const ubikeStore = useUbikeStore()		
 
 		const addFavoriteData = () => {
 			const favvoriteData = ubikeStore.state.favorites.reduce((accumulator: any, fovorite: String) => {
@@ -58,6 +25,26 @@ export const Ubike = defineComponent({
 			return favvoriteData					
 		}
 
+		const mapOptions = {
+			center: {
+				lat: 0,
+				lng: 0
+			},
+			zoom: 4
+		};
+
+		const initMap = async () => {
+      const loader = new Loader({
+        apiKey: 'AIzaSyAOZR1uhgPt7Hq790ibtGqUoPmVk9_22U4',
+        version: "weekly",
+        libraries: ["places"],
+        // language: "zh-TW",
+      });
+			loader.importLibrary('maps').then(({Map}) => {
+				new Map(document.getElementById('map'), mapOptions)
+			})
+    };
+
 		onBeforeMount(() => {
 			Axios.get(
 				'https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json'
@@ -65,16 +52,25 @@ export const Ubike = defineComponent({
 					// console.log('res =>', res.data)
 					originDatas.push(...res.data)
 					// allDatas.push(...res.data)
-					console.log('ubikeData =>', originDatas)
+					// console.log('ubikeData =>', originDatas)
 					if(ubikeStore.state.favorites.length > 0) {
 						favoriteDatas.value = addFavoriteData()
 						allDatas.push(...differenceWith(originDatas, favoriteDatas.value, isEqual))
-						console.log('allDatas ', allDatas)
+						// console.log('allDatas ', allDatas)
 					} else {
 						allDatas.push(...res.data)
 					}
 					loading.value = false
 				})
+		})
+
+		// window.onload = async () => {
+		// 	console.log('1233333')
+		// 	await initMap()
+		// }
+		onMounted(async () => {
+			console.log('onMountedonMountedonMountedonMountedonMountedonMounted')
+			await initMap()
 		})
 
 		return () => (
@@ -103,20 +99,22 @@ export const Ubike = defineComponent({
 								</QInput>
 							),
 							'body-cell-add': (props) => (
-								<QBtn
-									class='q-mr-md'
-									label='add to favorite'
-									onClick={
-										() => {
-											console.log('props =>', props)
-											ubikeStore.state.favorites.push(props.row.sna)
-											favoriteDatas.value.push(props.row)
-											allDatas.splice(props.rowIndex, 1)
-											console.log('ubikeStore.state.favorites =>', ubikeStore.state.favorites)
+								<QTd>
+									<QBtn
+										class='q-mr-md'
+										round
+										icon='add_location_alt'
+										onClick={
+											() => {
+												console.log('props =>', props)
+												ubikeStore.state.favorites.push(props.row.sna)
+												favoriteDatas.value.push(props.row)
+												allDatas.splice(props.rowIndex, 1)
+												console.log('ubikeStore.state.favorites =>', ubikeStore.state.favorites)
+											}
 										}
-									}
-								>
-								</QBtn>
+									/>
+								</QTd>
 							)
 						}}
 					>
@@ -132,25 +130,28 @@ export const Ubike = defineComponent({
 							row-key={'name'}
 							v-slots={{
 								'body-cell-remove': (props) => (
-									<QBtn
-										class='q-mr-md'
-										label='delet to favorite'
-										onClick={
-											() => {
-												console.log('props =>', props.rowIndex)
-												favoriteDatas.value.splice(props.rowIndex, 1)
-												ubikeStore.state.favorites.splice(props.rowIndex, 1)
-												Object.assign(allDatas, differenceWith(originDatas, favoriteDatas.value, isEqual))
+									<QTd>
+										<QBtn
+											class='q-mr-md'
+											round
+											icon='location_off'
+											onClick={
+												() => {
+													console.log('props =>', props.rowIndex)
+													favoriteDatas.value.splice(props.rowIndex, 1)
+													ubikeStore.state.favorites.splice(props.rowIndex, 1)
+													Object.assign(allDatas, differenceWith(originDatas, favoriteDatas.value, isEqual))
+												}
 											}
-										}
-									>
-									</QBtn>
+										/>
+									</QTd>
 								)
 							}}
 						>
 						</QTable>
 					)}
 				</div>
+				<div id="map" style='width: 200p; height: 200px;'/>
 			</div>
 		)
 	}
