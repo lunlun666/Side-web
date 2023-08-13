@@ -13,7 +13,30 @@ export const Ubike = defineComponent({
 		const favoriteDatas = ref([])
 		const loading = ref(true)
 		const filterText = ref('')
-		const ubikeStore = useUbikeStore()		
+		const ubikeStore = useUbikeStore()
+
+		const locatArray = reactive([
+			{
+				lat: 25.045978,
+				lng: 121.514501,
+
+			},
+			{
+				lat: 25.045978,
+				lng: 121.516501,
+			},
+			// {
+			// 	lat: 25.045978,
+			// 	lng: 121.514501,
+			// },
+
+		])
+		const a = reactive({
+			lat: 25.045978,
+			lng: 121.614501,
+			// lat: 25.045900,
+			// lng: 121.514200,
+		})
 
 		const addFavoriteData = () => {
 			const favvoriteData = ubikeStore.state.favorites.reduce((accumulator: any, fovorite: String) => {
@@ -25,30 +48,42 @@ export const Ubike = defineComponent({
 			return favvoriteData					
 		}
 
-		const mapOptions = {
-			center: {
-				lat: 0,
-				lng: 0
-			},
-			zoom: 4
-		};
-
 		const initMap = async () => {
       const loader = new Loader({
-        apiKey: 'AIzaSyAOZR1uhgPt7Hq790ibtGqUoPmVk9_22U4',
+        apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY,
         version: "weekly",
         libraries: ["places"],
         // language: "zh-TW",
-      });
-			loader.importLibrary('maps').then(({Map}) => {
-				new Map(document.getElementById('map'), mapOptions)
+      })
+			
+			const mapOptions = {
+				center: locatArray[0],
+				zoom: 16,
+			}
+
+			const {Map} = await loader.importLibrary('maps')
+			const {Marker} = await loader.importLibrary('marker')
+
+			const map = new Map(document.getElementById('map'), mapOptions)
+
+			locatArray.forEach((item) => {
+				new Marker({
+					position: item,
+					map,
+					label: `${item.lat} / ${item.lng}`
+				})
 			})
-    };
+			// new Marker({
+			// 	position: locatArray[0],
+			// 	map,
+			// 	label: `${locatArray[0].lat} / ${locatArray[0].lng}`
+			// })
+    }
 
 		onBeforeMount(() => {
 			Axios.get(
 				'https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json'
-				).then((res) => {
+				).then(async(res) => {
 					// console.log('res =>', res.data)
 					originDatas.push(...res.data)
 					// allDatas.push(...res.data)
@@ -60,6 +95,8 @@ export const Ubike = defineComponent({
 					} else {
 						allDatas.push(...res.data)
 					}
+					console.log('init map', JSON.stringify(favoriteDatas.value[0], null, 2))
+					await initMap()
 					loading.value = false
 				})
 		})
@@ -70,8 +107,15 @@ export const Ubike = defineComponent({
 		// }
 		onMounted(async () => {
 			console.log('onMountedonMountedonMountedonMountedonMountedonMounted')
-			await initMap()
 		})
+
+		const test = () => {
+			locatArray.push({
+				lat: 25.045978,
+				lng: 121.518501,
+			})
+			initMap()
+		}
 
 		return () => (
 			<div class={'full-width'}>
@@ -120,7 +164,7 @@ export const Ubike = defineComponent({
 					>
 					</QTable>
 				</div>
-				<div>
+				<div class='q-mb-md'>
 					{!loading.value && (
 							<QTable
 							title={'Favorite'}
@@ -151,7 +195,19 @@ export const Ubike = defineComponent({
 						</QTable>
 					)}
 				</div>
-				<div id="map" style='width: 200p; height: 200px;'/>
+				<div>
+					<QBtn onClick={() => test()}/>
+					{
+						locatArray.map((item) => (
+							<div>
+								{item.lat} / {item.lng}
+							</div>
+						))
+					}
+				</div>
+				<div id="map" style='width: 200p; height: 400px;'/>
+				<div>
+				</div>
 			</div>
 		)
 	}
