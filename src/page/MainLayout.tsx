@@ -16,8 +16,8 @@ export const MainLayout = defineComponent({
 		// const btnLeftDrawer = ref(false)
 
 		return () => (
-      <QLayout view="hHh lpR fff">
-        <QHeader >
+      <QLayout view="hHh lpr fFf">
+        <QHeader>
           <QToolbar class='bg-white'>
             {/* Allen Web */}
             <QToolbarTitle shrink class='text-primary'>
@@ -32,10 +32,18 @@ export const MainLayout = defineComponent({
               color='primary'
               to='/ubkie'
             />
+            <QBtn
+              label='UBike'
+              no-caps
+              unelevated
+              icon='directions_bike'
+              color='primary'
+              to='/ubkie2'
+            />
           </QToolbar>
         </QHeader>
         <QPageContainer>
-          <QPage>
+          <QPage class='q-pa-md'>
 					  <RouterView />
           </QPage>
 				</QPageContainer>

@@ -31,12 +31,6 @@ export const Ubike = defineComponent({
 			// },
 
 		])
-		const a = reactive({
-			lat: 25.045978,
-			lng: 121.614501,
-			// lat: 25.045900,
-			// lng: 121.514200,
-		})
 
 		const addFavoriteData = () => {
 			const favvoriteData = ubikeStore.state.favorites.reduce((accumulator: any, fovorite: String) => {
@@ -57,7 +51,10 @@ export const Ubike = defineComponent({
       })
 			
 			const mapOptions = {
-				center: locatArray[0],
+				center: {
+					lat: favoriteDatas.value[0].lat,
+					lng: favoriteDatas.value[0].lng,
+				},
 				zoom: 16,
 			}
 
@@ -66,11 +63,14 @@ export const Ubike = defineComponent({
 
 			const map = new Map(document.getElementById('map'), mapOptions)
 
-			locatArray.forEach((item) => {
+			favoriteDatas.value.forEach((item) => {
 				new Marker({
-					position: item,
+					position: {
+						lat: item.lat,
+						lng: item.lng,
+					},
 					map,
-					label: `${item.lat} / ${item.lng}`
+					label: `${item.ar}`
 				})
 			})
 			// new Marker({
@@ -96,29 +96,18 @@ export const Ubike = defineComponent({
 						allDatas.push(...res.data)
 					}
 					console.log('init map', JSON.stringify(favoriteDatas.value[0], null, 2))
+					console.log('favoriteDatas.value => ', favoriteDatas.value)
 					await initMap()
 					loading.value = false
 				})
 		})
 
-		// window.onload = async () => {
-		// 	console.log('1233333')
-		// 	await initMap()
-		// }
 		onMounted(async () => {
-			console.log('onMountedonMountedonMountedonMountedonMountedonMounted')
+			// console.log('onMountedonMountedonMountedonMountedonMountedonMounted')
 		})
 
-		const test = () => {
-			locatArray.push({
-				lat: 25.045978,
-				lng: 121.518501,
-			})
-			initMap()
-		}
-
 		return () => (
-			<div class={'full-width'}>
+			<div>
 				{/* <div>	sno(站點代號)、sna(中文場站名稱)、tot(場站總停車格)、sbi(可借車位數)、sarea(中文場站區域)、mday(資料更新時間)、lat(緯度)、lng(經度)、ar(中文地址)、sareaen(英文場站區域)、snaen(英文場站名稱)、aren(英文地址)、bemp(可還空位數)、act(場站是否暫停營運)</div> */}
 				{/* {ubikeData[0]?.ar} */}
 				<div class='q-mb-md'>
@@ -196,7 +185,6 @@ export const Ubike = defineComponent({
 					)}
 				</div>
 				<div>
-					<QBtn onClick={() => test()}/>
 					{
 						locatArray.map((item) => (
 							<div>
