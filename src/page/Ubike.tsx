@@ -6,6 +6,7 @@ import { totalColumns, favoriteColumns } from '../data/tableColumns'
 import { differenceWith, isEqual } from 'lodash'
 import { Loader } from '@googlemaps/js-api-loader'
 
+
 export const Ubike = defineComponent({
 	setup() {
 		const originDatas = reactive([])
@@ -52,8 +53,8 @@ export const Ubike = defineComponent({
 			
 			const mapOptions = {
 				center: {
-					lat: favoriteDatas.value[0].lat,
-					lng: favoriteDatas.value[0].lng,
+					lat: favoriteDatas.value[0]?.lat ?? 25.045978,
+					lng: favoriteDatas.value[0]?.lng ?? 121.514501,
 				},
 				zoom: 16,
 			}

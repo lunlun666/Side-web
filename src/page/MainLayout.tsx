@@ -33,7 +33,7 @@ export const MainLayout = defineComponent({
               to='/ubkie'
             />
             <QBtn
-              label='UBike'
+              label='UBike2'
               no-caps
               unelevated
               icon='directions_bike'
