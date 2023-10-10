@@ -4,7 +4,7 @@ import { useUbikeStore } from '@/stores/ubike'
 export const Ubike2 = defineComponent({
 	setup() {
 		const ubikeStore = useUbikeStore()
-		ubikeStore.getAllUBikeData()
+		ubikeStore.fetchAllUBikeData()
 
 		return () => (
       <>
